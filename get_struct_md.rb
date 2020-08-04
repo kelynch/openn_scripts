@@ -1,20 +1,29 @@
 #!/usr/bin/env ruby
 
+require 'csv'
 require 'net/http'
 require 'json'
 require 'pry'
+require 'httpclient'
 
+object_json = File.read(ARGV[0])
+object_manifest = JSON.parse(object_json)
+client = HTTPClient.new
+serial_num = 0
 
-collection_json = File.read('manifest.json')
-collection_manifest = JSON.parse(collection_json)
+csv_data = []
+csv_data << ["SERIAL_NUM", "DISPLAY PAGE", "FILE_NAME"]
 
-collection_manifest['manifests'].each do |manifest|
-  ark = ''
-  uri = URI(manifest['@id'])
-  response = Net::HTTP.get(uri)
-  object_manifest = JSON.parse(response)
-
-  object_manifest['metadata'].each do |md|
-    binding.pry
+object_manifest['sequences'].each do |seq|
+  seq['canvases'].each do |canvas|
+    serial_num += 1
+    label = canvas['label']
+    tiff_url = canvas['rendering'].first['@id']
+    h = client.head(tiff_url).header
+    filename_response = h['Content-Disposition']
+    filename = /[0-9]+.tif/.match(filename_response.first).to_s
+    csv_data << [serial_num, label, filename]
   end
 end
+
+File.write("#{ARGV[1]}.csv", csv_data.map(&:to_csv).join)
