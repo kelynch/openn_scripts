@@ -17,11 +17,15 @@ collection_manifest['manifests'].each do |manifest|
   response = Net::HTTP.get(uri)
   object_manifest = JSON.parse(response)
 
+  sa = object_manifest['seeAlso'].select {|sa| sa["format"] == 'text/xml' }.first
+
+  bib_id = sa.nil? ? '' : sa['@id']
+
   object_manifest['metadata'].each do |md|
     if md['label'] == "Identifier"
       html_value = md['value'].first
       ark = URI.extract(html_value).last.gsub("http://arks.princeton.edu/","")
     end
   end
-  puts "#{ark}"
+  puts "#{bib_id}|#{ark}"
 end
