@@ -14,3 +14,7 @@ This will generate XML files of the descriptive metadata for the catalog records
 ```bash
 ruby get_struct_mds.rb 4821057.json
 ```
+
+---
+
+[Example of data load in Google Drive for OPenn](https://drive.google.com/drive/folders/1oOc__RgpY6AzpIlSuS0EYW__nu_I67Qj)
